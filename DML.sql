@@ -118,6 +118,7 @@ VALUES
 INSERT INTO Course_section (course_id, section_id, semester, offered_year, start_date, end_date, student_count, weekday, time, instructor_id)
 VALUES
 ('CS101', 1, 'Fall', 2024, '2024-09-01', '2024-12-15', 25, 'Monday', '10:00:00', 1000026),
+('CS101', 2, 'Fall', 2024, '2024-09-01', '2024-12-15', 25, 'Monday', '10:00:00', 1000026),
 ('CS102', 1, 'Spring', 2024, '2024-01-15', '2024-05-15', 20, 'Wednesday', '11:00:00', 1000027),
 ('CS102', 2, 'Fall', 2024, '2024-09-01', '2024-12-15', 18, 'Thursday', '13:00:00', 1000028),
 ('CS201', 1, 'Spring', 2025, '2025-01-15', '2025-05-15', 22, 'Tuesday', '14:00:00', 1000029),
@@ -161,33 +162,32 @@ VALUES
 
 INSERT INTO Enrolls (student_id, course_id, section_id, semester, offered_year, final_grade)
 VALUES
-(1000001, 'CS102', 2, 'Fall', 2024, 99.61),
-(1000001, 'CS202', 2, 'Summer', 2024, 51.66),
-(1000001, 'CHE101', 1, 'Spring', 2025, 98.51),
-(1000002, 'CHE101', 1, 'Spring', 2025, 68.43),
-(1000002, 'CS102', 1, 'Spring', 2024, 99.23),
-(1000002, 'CS204', 1, 'Spring', 2025, 77.64),
-(1000003, 'ENG101', 2, 'Spring', 2025, 80.25),
-(1000003, 'CS102', 2, 'Fall', 2024, 56.31),
-(1000003, 'CS201', 1, 'Spring', 2025, 89.91),
-(1000004, 'MTH101', 1, 'Spring', 2024, 73.15),
-(1000004, 'PHY101', 1, 'Fall', 2024, 92.54),
-(1000004, 'BUS101', 1, 'Fall', 2024, 60.47),
-(1000005, 'CS101', 1, 'Fall', 2024, 87.62),
-(1000005, 'BIO101', 1, 'Summer', 2024, 78.83),
-(1000006, 'BIO101', 2, 'Fall', 2024, 62.09),
-(1000006, 'CS102', 2, 'Fall', 2024, 59.74),
-(1000007, 'ENG101', 2, 'Spring', 2025, 91.08),
-(1000007, 'BUS101', 1, 'Fall', 2024, 73.52),
-(1000007, 'CS202', 2, 'Summer', 2024, 85.61),
-(1000008, 'CS101', 1, 'Fall', 2024, 63.49),
-(1000008, 'CS202', 1, 'Summer', 2024, 89.65),
-(1000008, 'ENG101', 1, 'Fall', 2024, 92.18),
-(1000009, 'BIO101', 1, 'Summer', 2024, 68.40),
-(1000009, 'CHE101', 1, 'Spring', 2025, 55.32),
-(1000009, 'PHY101', 1, 'Fall', 2024, 86.73),
-(1000010, 'CHE101', 1, 'Spring', 2025, 90.51),
-(1000010, 'CS201', 1, 'Spring', 2025, 84.63);
+(1000001, 'CS102', 2, 'Fall', 2024, 86.91), 
+(1000001, 'CS202', 2, 'Summer', 2024, 75.00), 
+(1000001, 'CHE101', 1, 'Spring', 2025, NULL), 
+(1000002, 'CHE101', 1, 'Spring', 2025, NULL), 
+(1000002, 'CS102', 1, 'Spring', 2024, 83.50), 
+(1000002, 'CS204', 1, 'Spring', 2025, NULL),
+(1000003, 'ENG101', 2, 'Spring', 2025, NULL),
+(1000003, 'CS102', 2, 'Fall', 2024, 90.20), 
+(1000003, 'CS201', 1, 'Spring', 2025, NULL), 
+(1000004, 'MTH101', 1, 'Spring', 2024, 72.90),
+(1000004, 'PHY101', 1, 'Fall', 2024, NULL),
+(1000004, 'BUS101', 1, 'Fall', 2024, NULL), 
+(1000005, 'CS101', 1, 'Fall', 2024, NULL), 
+(1000005, 'BIO101', 1, 'Summer', 2024, 77.00), 
+(1000007, 'ENG101', 2, 'Spring', 2025, NULL), 
+(1000007, 'BUS101', 1, 'Fall', 2024, NULL), 
+(1000007, 'CS202', 2, 'Summer', 2024, 85.20), 
+(1000008, 'CS101', 1, 'Fall', 2024, NULL), 
+(1000008, 'CS202', 1, 'Summer', 2024, 88.50),
+(1000008, 'ENG101', 1, 'Fall', 2024, NULL),
+(1000009, 'BIO101', 1, 'Summer', 2024, 65.00), 
+(1000009, 'CHE101', 1, 'Spring', 2025, NULL), 
+(1000009, 'PHY101', 1, 'Fall', 2024, NULL), 
+(1000010, 'CHE101', 1, 'Spring', 2025, NULL), 
+(1000010, 'CS201', 1, 'Spring', 2025, NULL);
+
 
 
 INSERT INTO Exam (exam_id, course_id, type, date, time)
@@ -213,28 +213,24 @@ VALUES
 (19, 'ENG101', 'midterm', '2024-10-15', '13:00:00'),
 (20, 'ENG101', 'final', '2024-12-10', '15:30:00');
 
-INSERT INTO Exam_grades (exam_id, student_id, grade)
+INSERT INTO Exam_grades (exam_id, student_id, grade, feedback)
 VALUES
-(1, 1000001, 80.55),
-(2, 1000001, 70.24),
-(3, 1000001, 75.72),
-(4, 1000001, 98.09),
-(5, 1000002, 88.12),
-(6, 1000002, 79.45),
-(7, 1000003, 91.34),
-(8, 1000003, 89.23),
-(9, 1000003, 78.56),
-(10, 1000004, 95.20),
-(11, 1000004, 63.25),
-(12, 1000004, 81.44),
-(13, 1000005, 88.45),
-(14, 1000005, 92.13),
-(15, 1000006, 77.19),
-(16, 1000006, 83.45),
-(17, 1000007, 67.12),
-(18, 1000007, 75.50),
-(19, 1000008, 88.78),
-(20, 1000008, 92.34);
+(1, 1000001, 80.55, 'Good understanding of concepts'), 
+(3, 1000001, 75.72, 'Good effort'),
+(4, 1000001, 98.09, 'Excellent performance'),
+(3, 1000002, 70.00, 'Solid midterm performance'),
+(4, 1000002, 90.00, 'Excellent work on the final'),
+(7, 1000003, 91.34, 'Strong analytical skills'),
+(8, 1000003, 89.23, 'Good application of knowledge'),
+(7, 1000007, 80.00, 'Good start in midterm'),
+(8, 1000007, 90.00, 'Final performance improved'),
+(11, 1000004, 60.00, 'Average performance, needs focus'),
+(12, 1000004, 80.00, 'Final was much better'),
+(15, 1000005, 75.00, 'Consistent performance'),
+(16, 1000005, 80.00, 'Good improvement in final'),
+(15, 1000009, 60.00, 'Needs to focus on fundamentals'),
+(16, 1000009, 70.00, 'Final showed improvement'),
+(19, 1000008, 88.78, 'Impressive understanding of literature');
 
 INSERT INTO Syllabus (course_id, section_id, semester, offered_year, description, final_weight, midterm_weight, passing_grade)
 VALUES
