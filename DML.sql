@@ -175,19 +175,18 @@ VALUES
 (1000004, 'PHY101', 1, 'Fall', 2024, NULL),
 (1000004, 'BUS101', 1, 'Fall', 2024, NULL), 
 (1000005, 'CS101', 1, 'Fall', 2024, NULL), 
-(1000005, 'BIO101', 1, 'Summer', 2024, 77.00), 
+(1000005, 'BIO101', 1, 'Summer', 2024, 78.00), 
 (1000007, 'ENG101', 2, 'Spring', 2025, NULL), 
 (1000007, 'BUS101', 1, 'Fall', 2024, NULL), 
 (1000007, 'CS202', 2, 'Summer', 2024, 85.20), 
 (1000008, 'CS101', 1, 'Fall', 2024, NULL), 
 (1000008, 'CS202', 1, 'Summer', 2024, 88.50),
 (1000008, 'ENG101', 1, 'Fall', 2024, NULL),
-(1000009, 'BIO101', 1, 'Summer', 2024, 65.00), 
+(1000009, 'BIO101', 1, 'Summer', 2024, 66.00), 
 (1000009, 'CHE101', 1, 'Spring', 2025, NULL), 
 (1000009, 'PHY101', 1, 'Fall', 2024, NULL), 
 (1000010, 'CHE101', 1, 'Spring', 2025, NULL), 
 (1000010, 'CS201', 1, 'Spring', 2025, NULL);
-
 
 
 INSERT INTO Exam (exam_id, course_id, type, date, time)
@@ -215,7 +214,6 @@ VALUES
 
 INSERT INTO Exam_grades (exam_id, student_id, grade, feedback)
 VALUES
-(1, 1000001, 80.55, 'Good understanding of concepts'), 
 (3, 1000001, 75.72, 'Good effort'),
 (4, 1000001, 98.09, 'Excellent performance'),
 (3, 1000002, 70.00, 'Solid midterm performance'),
@@ -256,26 +254,25 @@ VALUES
 ('LAW101', 1, 'Spring', 2025, 'This syllabus introduces legal systems, constitutional law, and the role of law in society.', 0.7, 0.3, 60);
 
 
-INSERT INTO Discussion (course_id, section_id, semester, offered_year, discussion_id, creator_id, title, disucssion_content)
+INSERT INTO Discussion (course_id, section_id, semester, offered_year, creator_id, title, disucssion_content)
 VALUES
-('CS101', 1, 'Fall', 2024, 1, 1000001, 'Understanding Variables', 'Can someone explain the difference between local and global variables?'),
-('CS102', 1, 'Spring', 2024, 2, 1000002, 'Data Structures Efficiency', 'What is the most efficient data structure for searching and why?'),
-('CS102', 2, 'Fall', 2024, 3, 1000003, 'Sorting Algorithms', 'Which sorting algorithm is better for small data sets?'),
-('CS201', 1, 'Spring', 2025, 4, 1000004, 'Algorithm Complexity', 'Can someone clarify how to calculate the Big-O notation for an algorithm?'),
-('CS202', 1, 'Summer', 2024, 5, 1000005, 'Introduction to Regression', 'What is the difference between linear and logistic regression?'),
-('MTH101', 1, 'Spring', 2024, 6, 1000006, 'Integration Techniques', 'Can anyone recommend resources for mastering integration techniques?'),
-('PHY101', 1, 'Fall', 2024, 7, 1000007, 'Newton’s Laws', 'How do Newton’s laws apply to orbital motion?'),
-('BIO101', 1, 'Summer', 2024, 8, 1000008, 'Genetics Basics', 'What are the key differences between mitosis and meiosis?'),
-('ENG101', 1, 'Fall', 2024, 9, 1000009, 'Modern Literature Themes', 'What are the main themes in modern English literature?');
+('CS101', 1, 'Fall', 2024, 1000001, 'Understanding Variables', 'Can someone explain the difference between local and global variables?'),
+('CS102', 1, 'Spring', 2024, 1000002, 'Data Structures Efficiency', 'What is the most efficient data structure for searching and why?'),
+('CS102', 2, 'Fall', 2024,1000003, 'Sorting Algorithms', 'Which sorting algorithm is better for small data sets?'),
+('CS201', 1, 'Spring', 2025, 1000004, 'Algorithm Complexity', 'Can someone clarify how to calculate the Big-O notation for an algorithm?'),
+('CS202', 1, 'Summer', 2024, 1000005, 'Introduction to Regression', 'What is the difference between linear and logistic regression?'),
+('MTH101', 1, 'Spring', 2024,1000006, 'Integration Techniques', 'Can anyone recommend resources for mastering integration techniques?'),
+('PHY101', 1, 'Fall', 2024, 1000007, 'Newton’s Laws', 'How do Newton’s laws apply to orbital motion?'),
+('BIO101', 1, 'Summer', 2024, 1000008, 'Genetics Basics', 'What are the key differences between mitosis and meiosis?'),
+('ENG101', 1, 'Fall', 2024, 1000009, 'Modern Literature Themes', 'What are the main themes in modern English literature?');
 
-INSERT INTO Discussion_comments (comment_id, discussion_id, creator_id, comment_content)
+INSERT INTO Discussion_comments (discussion_id, creator_id, comment_content)
 VALUES
-(1, 1, 1000002, 'Local variables are defined inside functions, while global variables are accessible throughout the program.'),
-(2, 1, 1000003, 'Global variables should be used sparingly to avoid conflicts.'),
-(3, 2, 1000004, 'Hash tables are often the most efficient for searching due to O(1) average time complexity.'),
-(4, 2, 1000005, 'It depends on the type of search; binary search trees are also efficient for ordered data.'),
-(5, 3, 1000006, 'For small data sets, bubble sort or insertion sort is simple and efficient.'),
-(6, 4, 1000007, 'To calculate Big-O, focus on the dominant term and ignore constants.'),
-(7, 5, 1000008, 'Linear regression is used for continuous data, while logistic regression is used for classification problems.'),
-(8, 6, 1000009, 'Khan Academy has great videos on integration techniques.'),
-(9, 7, 1000010, 'Newton’s laws describe how objects in motion are influenced by gravitational forces.');
+(19, 1000002, 'Local variables are defined inside functions, while global variables are accessible throughout the program.'),
+(19, 1000003, 'Global variables should be used sparingly to avoid conflicts.'),
+(20, 1000004, 'Hash tables are often the most efficient for searching due to O(1) average time complexity.'),
+(21, 1000005, 'It depends on the type of search; binary search trees are also efficient for ordered data.'),
+(21, 1000006, 'For small data sets, bubble sort or insertion sort is simple and efficient.'),
+(23, 1000008, 'Linear regression is used for continuous data, while logistic regression is used for classification problems.'),
+(24, 1000009, 'Khan Academy has great videos on integration techniques.'),
+(25, 1000010, 'Newton’s laws describe how objects in motion are influenced by gravitational forces.');

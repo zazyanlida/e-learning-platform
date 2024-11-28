@@ -117,7 +117,7 @@ CREATE TABLE Enrolls (
 );
 
 CREATE TABLE Discussion (
-	discussion_id INT PRIMARY KEY,
+	discussion_id SERIAL PRIMARY KEY,
 	course_id VARCHAR(255),
 	section_id INT, 
 	semester VARCHAR(255),
@@ -130,7 +130,7 @@ CREATE TABLE Discussion (
 );
 
 CREATE TABLE Discussion_comments (
-	comment_id INT PRIMARY KEY,
+	comment_id SERIAL PRIMARY KEY,
 	discussion_id INT REFERENCES Discussion(discussion_id),
 	creator_id INT REFERENCES Users(user_id),
 	comment_content TEXT
