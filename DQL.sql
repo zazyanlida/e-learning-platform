@@ -666,10 +666,309 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
-SELECT unenroll_student_from_course(1000004, 'BUS101', 1, 'Fall', 2024);
 
-select * from Enrolls
 
+
+CREATE OR REPLACE FUNCTION get_enrolled_courses(my_student_id INT)
+RETURNS TABLE (
+    course_id VARCHAR(255),
+    course_name VARCHAR(255),
+	category VARCHAR(255),
+    offered_year INT,
+    semester VARCHAR(255),
+	is_finished BOOLEAN 
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        cs.course_id,
+        c.course_name,
+		 c.category,
+        cs.offered_year,
+        cs.semester,
+        e.final_grade IS NOT NULL AS is_finished    
+	FROM 
+        Enrolls e
+    INNER JOIN Course_section cs
+        ON e.course_id = cs.course_id 
+        AND e.section_id = cs.section_id
+        AND e.semester = cs.semester
+        AND e.offered_year = cs.offered_year
+    INNER JOIN Courses c
+        ON cs.course_id = c.course_id
+    INNER JOIN Instructor i
+        ON cs.instructor_id = i.instructor_id
+    WHERE 
+        e.student_id = my_student_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION get_student_course_grades(my_student_id INT)
+RETURNS TABLE (
+    course_id VARCHAR(255),
+    course_name VARCHAR(255),
+    final_grade DECIMAL(5, 2)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        cs.course_id,
+        c.course_name,
+        e.final_grade
+    FROM 
+        Enrolls e
+    INNER JOIN Course_section cs
+        ON e.course_id = cs.course_id 
+        AND e.section_id = cs.section_id
+        AND e.semester = cs.semester
+        AND e.offered_year = cs.offered_year
+    INNER JOIN Courses c
+        ON cs.course_id = c.course_id
+    WHERE 
+        e.student_id = my_student_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION get_available_courses(my_student_id INT)
+RETURNS TABLE (
+    course_id VARCHAR(255),
+    course_name VARCHAR(255),
+    category VARCHAR(255),
+    description TEXT,
+    is_passed BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT
+        c.course_id,
+        c.course_name,
+        c.category,
+        c.description,
+        CASE 
+            WHEN passed_courses.course_id IS NOT NULL THEN TRUE
+            ELSE FALSE
+        END AS is_passed
+    FROM
+        Courses c
+    LEFT JOIN Prerequisites p
+        ON c.course_id = p.course_id
+    LEFT JOIN (
+        SELECT 
+            e.course_id
+        FROM 
+            Enrolls e
+        INNER JOIN Syllabus s
+            ON e.course_id = s.course_id
+            AND e.section_id = s.section_id
+            AND e.semester = s.semester
+            AND e.offered_year = s.offered_year
+        WHERE 
+            e.student_id = my_student_id
+            AND e.final_grade >= s.passing_grade
+    ) passed_courses
+        ON p.prereq_id = passed_courses.course_id
+    LEFT JOIN (
+        SELECT 
+            e.course_id
+        FROM 
+            Enrolls e
+        INNER JOIN Syllabus s
+            ON e.course_id = s.course_id
+            AND e.section_id = s.section_id
+            AND e.semester = s.semester
+            AND e.offered_year = s.offered_year
+        WHERE 
+            e.student_id = my_student_id
+            AND e.final_grade >= s.passing_grade
+    ) student_passed_courses
+        ON c.course_id = student_passed_courses.course_id
+    WHERE 
+        p.prereq_id IS NULL OR passed_courses.course_id IS NOT NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION get_courses_with_prerequisites_status(my_student_id INT)
+RETURNS TABLE (
+    course_id VARCHAR(255),
+    course_name VARCHAR(255),
+    category VARCHAR(255),
+    description TEXT,
+    prerequisite_id VARCHAR(255),
+    prerequisite_name VARCHAR(255),
+    is_prerequisite_met BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.course_id,
+        c.course_name,
+        c.category,
+        c.description,
+        p.prereq_id AS prerequisite_id,
+        pc.course_name AS prerequisite_name,
+        CASE 
+		    WHEN p.prereq_id IS NULL THEN TRUE
+            WHEN passed_courses.course_id IS NOT NULL  THEN TRUE
+            ELSE FALSE
+        END AS is_prerequisite_met
+    FROM 
+        Courses c
+    LEFT JOIN Prerequisites p
+        ON c.course_id = p.course_id
+    LEFT JOIN Courses pc
+        ON p.prereq_id = pc.course_id
+    LEFT JOIN (
+        SELECT 
+            e.course_id
+        FROM 
+            Enrolls e
+        INNER JOIN Syllabus s
+            ON e.course_id = s.course_id
+            AND e.section_id = s.section_id
+            AND e.semester = s.semester
+            AND e.offered_year = s.offered_year
+        WHERE 
+            e.student_id = my_student_id
+            AND e.final_grade >= s.passing_grade 
+    ) passed_courses
+        ON p.prereq_id = passed_courses.course_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION enroll_student(
+    my_student_id INT,
+    my_course_id VARCHAR(255),
+    my_section_id INT,
+    my_semester VARCHAR(255),
+    my_offered_year INT
+) RETURNS TEXT AS $$
+DECLARE
+    prereqs_met BOOLEAN;
+    seats_available BOOLEAN;
+    already_enrolled BOOLEAN;
+    current_student_count INT;
+    max_seats INT := 50; 
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM Enrolls
+        WHERE student_id = my_student_id
+          AND course_id = my_course_id
+          AND section_id = my_section_id
+          AND semester = my_semester
+          AND offered_year = my_offered_year
+    ) INTO already_enrolled;
+
+    IF already_enrolled THEN
+        RETURN 'You are already enrolled in this course section.';
+    END IF;
+
+    SELECT bool_and(is_prerequisite_met)
+    FROM get_courses_with_prerequisites_status(my_student_id)
+    WHERE course_id = my_course_id
+    INTO prereqs_met;
+
+    IF NOT prereqs_met THEN
+        RETURN 'You do not meet the prerequisite requirements for this course.';
+    END IF;
+
+    SELECT student_count
+    FROM Course_section
+    WHERE course_id = my_course_id
+      AND section_id = my_section_id
+      AND semester = my_semester
+      AND offered_year = my_offered_year
+    INTO current_student_count;
+
+    seats_available := (current_student_count < max_seats);
+
+    IF NOT seats_available THEN
+        RETURN 'No seats are available in this course section.';
+    END IF;
+
+    INSERT INTO Enrolls (student_id, course_id, section_id, semester, offered_year)
+    VALUES (my_student_id, my_course_id, my_section_id, my_semester, my_offered_year);
+
+    UPDATE Course_section
+    SET student_count = student_count + 1
+    WHERE course_id = my_course_id
+      AND section_id = my_section_id
+      AND semester = my_semester
+      AND offered_year = my_offered_year;
+
+    RETURN 'You have been successfully enrolled in the course.';
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION get_student_gpa(my_student_id INT)
+RETURNS DECIMAL(4, 2) AS $$
+DECLARE
+    cumulative_gpa DECIMAL(4, 2);
+BEGIN
+    SELECT 
+        ROUND(SUM(final_grade) / COUNT(final_grade) / 25, 2)
+    INTO 
+        cumulative_gpa
+    FROM 
+        Enrolls
+    WHERE 
+        student_id = my_student_id
+        AND final_grade IS NOT NULL;
+
+    IF cumulative_gpa IS NULL THEN
+        RETURN 0.00;
+    END IF;
+
+    RETURN cumulative_gpa;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION create_discussion(
+    p_course_id VARCHAR(255),
+    p_section_id INT,
+    p_semester VARCHAR(255),
+    p_offered_year INT,
+    p_creator_id INT,
+    p_title TEXT,
+    p_content TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    INSERT INTO Discussion (course_id, section_id, semester, offered_year, creator_id, title, disucssion_content)
+    VALUES (p_course_id, p_section_id, p_semester, p_offered_year, p_creator_id, p_title, p_content);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION add_comment(
+    p_discussion_id INT,
+    p_creator_id INT,
+    p_comment TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Discussion
+        WHERE discussion_id = p_discussion_id
+    ) THEN
+        RAISE NOTICE 'Discussion ID % does not exist.', p_discussion_id;
+    END IF;
+    INSERT INTO Discussion_comments (discussion_id, creator_id, comment_content)
+    VALUES (p_discussion_id, p_creator_id, p_comment);
+END;
+$$ LANGUAGE plpgsql;
 
 
 
