@@ -20,6 +20,7 @@ DROP FUNCTION IF EXISTS get_available_courses();
 DROP FUNCTION IF EXISTS get_courses_with_prerequisites_status();
 DROP FUNCTION IF EXISTS enroll_student();
 DROP FUNCTION IF EXISTS get_student_gpa();
+DROP FUNCTION IF EXISTS update_cumulative_gpa();
 DROP FUNCTION IF EXISTS create_course_and_assign_professor();
 DROP FUNCTION IF EXISTS create_exam_and_check_conflict();
 	
