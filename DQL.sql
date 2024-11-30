@@ -125,7 +125,7 @@ CREATE OR REPLACE FUNCTION view_class_grades (
 RETURNS TABLE(
 	student_id INT,
 	final_grade DECIMAL(5,2),
-	midterm_grade DECIMAL(5,2)L,
+	midterm_grade DECIMAL(5,2),
 	final_course_grade DECIMAL(5,2)
 
 ) AS $$
@@ -484,8 +484,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
------Droping course
-drop function drop_course
+--drop course
+
 CREATE OR REPLACE FUNCTION drop_course(
     p_student_id INT,
     p_course_id VARCHAR(255),
@@ -645,7 +645,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
 CREATE OR REPLACE FUNCTION get_courses_with_prerequisites_status(my_student_id INT)
 RETURNS TABLE (
     course_id VARCHAR(255),
@@ -693,7 +692,6 @@ BEGIN
         ON p.prereq_id = passed_courses.course_id;
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 CREATE OR REPLACE FUNCTION enroll_student(
@@ -760,7 +758,6 @@ BEGIN
     RETURN 'You have been successfully enrolled in the course.';
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 CREATE OR REPLACE FUNCTION get_student_gpa(my_student_id INT)
