@@ -138,14 +138,14 @@ CREATE TABLE Discussion_comments (
 );
 
 CREATE TABLE Course_feedback (
-	feedback_id SERIAL PRIMARY KEY,
-	student_id INT REFERENCES Student(student_id),
-	course_id VARCHAR(255),
-	section_id INT, 
-	semester VARCHAR(255),
-	offered_year INT, 
-	feedback TEXT,
-	rating INT,
+ student_id INT REFERENCES Student(student_id),
+ course_id VARCHAR(255),
+ section_id INT, 
+ semester VARCHAR(255),
+ offered_year INT, 
+ feedback TEXT,
+ rating INT,
+ PRIMARY KEY (student_id, course_id, section_id, semester, offered_year),
     FOREIGN KEY (course_id, section_id, semester, offered_year)
         REFERENCES Course_section (course_id, section_id, semester, offered_year)
 );
