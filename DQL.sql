@@ -673,21 +673,23 @@ CREATE OR REPLACE FUNCTION get_enrolled_courses(my_student_id INT)
 RETURNS TABLE (
     course_id VARCHAR(255),
     course_name VARCHAR(255),
-	category VARCHAR(255),
+    category VARCHAR(255),
     offered_year INT,
     semester VARCHAR(255),
-	is_finished BOOLEAN 
+    is_finished BOOLEAN,
+    instructor_name VARCHAR(255)
 ) AS $$
 BEGIN
     RETURN QUERY
     SELECT 
         cs.course_id,
         c.course_name,
-		 c.category,
+        c.category,
         cs.offered_year,
         cs.semester,
-        e.final_grade IS NOT NULL AS is_finished    
-	FROM 
+        e.final_grade IS NOT NULL AS is_finished,
+        CONCAT(i.first_name, ' ', i.last_name)::VARCHAR(255) AS instructor_name
+    FROM 
         Enrolls e
     INNER JOIN Course_section cs
         ON e.course_id = cs.course_id 
@@ -702,7 +704,7 @@ BEGIN
         e.student_id = my_student_id;
 END;
 $$ LANGUAGE plpgsql;
-
+SELECT * FROM get_enrolled_courses(1000002)
 
 
 CREATE OR REPLACE FUNCTION get_student_course_grades(my_student_id INT)
