@@ -358,18 +358,19 @@ $$ LANGUAGE plpgsql;
 
 
 --Leave course feedback 
+--Leave course feedback
 CREATE OR REPLACE FUNCTION leave_course_feedback(
-    p_student_id INT, 
+    p_student_id INT,
     p_course_id VARCHAR(255),
     p_section_id INT,
     p_semester VARCHAR(255),
     p_offered_year INT,
-    p_feedback_text TEXT
+    p_feedback TEXT,
+    p_rating INT
 )
 RETURNS VOID AS $$
 BEGIN
-    -- Check if the student is enrolled in the course
-    IF NOT EXISTS (
+	 IF NOT EXISTS (
         SELECT 1 
         FROM Enrolls 
         WHERE student_id = p_student_id 
@@ -381,25 +382,14 @@ BEGIN
         RAISE EXCEPTION 'Student % is not enrolled in course % for section % in semester % of year %', 
             p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
     END IF;
-
-    -- Insert feedback for the student into Exam_grades
-    -- We will assume there is at least one exam for the course and student, and we will insert feedback for the first exam found
-    INSERT INTO Exam_grades (exam_id, student_id, grade, feedback)
-    SELECT exam_id, p_student_id, grade, p_feedback_text
-    FROM Exam_grades
-    WHERE exam_id IN (
-        SELECT exam_id 
-        FROM Exam 
-        WHERE course_id = p_course_id 
-        AND date > CURRENT_DATE
-        LIMIT 1
-    )
-    AND student_id = p_student_id
-    ON CONFLICT (exam_id, student_id) 
-    DO UPDATE SET feedback = EXCLUDED.feedback; 
-
-    -- Notify the user that feedback was submitted
-    RAISE NOTICE 'Feedback successfully submitted for student % in course %', p_student_id, p_course_id;
+    -- Insert feedback into the Course_feedback table
+    INSERT INTO Course_feedback (student_id, course_id, section_id, semester, offered_year, feedback, rating)
+    VALUES (p_student_id, p_course_id, p_section_id, p_semester, p_offered_year, p_feedback, p_rating);
+    
+    -- Optionally, you can add logic here to check if the course section exists or if the student is enrolled in the course section.
+    
+    RAISE NOTICE 'Feedback successfully provided by Student ID: %, Course ID: %, Section ID: %, Semester: %, Year: %', 
+        p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
 END;
 $$ LANGUAGE plpgsql;
 
