@@ -268,11 +268,17 @@ VALUES
 
 INSERT INTO Discussion_comments (discussion_id, creator_id, comment_content)
 VALUES
-(19, 1000002, 'Local variables are defined inside functions, while global variables are accessible throughout the program.'),
-(19, 1000003, 'Global variables should be used sparingly to avoid conflicts.'),
-(20, 1000004, 'Hash tables are often the most efficient for searching due to O(1) average time complexity.'),
-(21, 1000005, 'It depends on the type of search; binary search trees are also efficient for ordered data.'),
-(21, 1000006, 'For small data sets, bubble sort or insertion sort is simple and efficient.'),
-(23, 1000008, 'Linear regression is used for continuous data, while logistic regression is used for classification problems.'),
-(24, 1000009, 'Khan Academy has great videos on integration techniques.'),
-(25, 1000010, 'Newton’s laws describe how objects in motion are influenced by gravitational forces.');
+(1, 1000002, 'Local variables are defined inside functions, while global variables are accessible throughout the program.'),
+(1, 1000003, 'Global variables should be used sparingly to avoid conflicts.'),
+(2, 1000004, 'Hash tables are often the most efficient for searching due to O(1) average time complexity.'),
+(3, 1000005, 'It depends on the type of search; binary search trees are also efficient for ordered data.'),
+(3, 1000006, 'For small data sets, bubble sort or insertion sort is simple and efficient.'),
+(5, 1000008, 'Linear regression is used for continuous data, while logistic regression is used for classification problems.'),
+(6, 1000009, 'Khan Academy has great videos on integration techniques.'),
+(7, 1000010, 'Newton’s laws describe how objects in motion are influenced by gravitational forces.');
+
+INSERT INTO Course_feedback (student_id, course_id, section_id, semester, offered_year, feedback, rating)
+VALUES 
+(1000001, 'CS102', 2, 'Fall', 2024, 'Great course!', 5),
+(1000005, 'BIO101',	1, 'Summer', 2024, 'Did not understand anything', 3),
+(1000007, 'CS202', 2, 'Summer', 2024, 'Course was ok', 4);

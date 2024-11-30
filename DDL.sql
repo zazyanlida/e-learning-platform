@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS Enrolls;
 DROP TABLE IF EXISTS Syllabus;
 DROP TABLE IF EXISTS Discussion_comments;
 DROP TABLE IF EXISTS Discussion;
+DROP TABLE IF EXISTS Course_feedback;
 DROP TABLE IF EXISTS Course_section;
 DROP TABLE IF EXISTS Instructor;
 DROP TABLE IF EXISTS Prerequisites;
@@ -136,6 +137,18 @@ CREATE TABLE Discussion_comments (
 	comment_content TEXT
 );
 
+CREATE TABLE Course_feedback (
+	feedback_id SERIAL PRIMARY KEY,
+	student_id INT REFERENCES Student(student_id),
+	course_id VARCHAR(255),
+	section_id INT, 
+	semester VARCHAR(255),
+	offered_year INT, 
+	feedback TEXT,
+	rating INT,
+    FOREIGN KEY (course_id, section_id, semester, offered_year)
+        REFERENCES Course_section (course_id, section_id, semester, offered_year)
+);
 
 
 
