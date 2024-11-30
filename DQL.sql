@@ -803,6 +803,32 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION get_student_gpa(integer);
+CREATE OR REPLACE FUNCTION get_student_gpa(my_student_id INT)
+RETURNS TABLE (
+    semester VARCHAR(255),
+    offered_year INT,
+    gpa DECIMAL(4, 2)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        e.semester,
+        e.offered_year,
+        ROUND(SUM(e.final_grade) / COUNT(e.final_grade) / 25, 2) AS gpa
+        
+    FROM 
+        Enrolls e
+    WHERE 
+        e.student_id = my_student_id
+        AND e.final_grade IS NOT NULL
+    GROUP BY 
+        e.semester, e.offered_year, e.student_id
+    ORDER BY 
+        e.offered_year, e.semester;
+END;
+$$ LANGUAGE plpgsql;
+
 ------------------Admin Operations-----------------------------------------------------------------------------
 
 --Add course andd assign to instructor 
