@@ -783,6 +783,27 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION update_cumulative_gpa(my_student_id INT)
+RETURNS VOID AS $$
+DECLARE
+    cumulative_gpa DECIMAL(4, 2);
+BEGIN
+    SELECT 
+        ROUND(SUM(final_grade) / COUNT(final_grade) / 25, 2)
+    INTO 
+        cumulative_gpa
+    FROM 
+        Enrolls
+    WHERE 
+        student_id = my_student_id
+        AND final_grade IS NOT NULL;
+
+    UPDATE Student
+    SET cgpa = COALESCE(cumulative_gpa, 0.00) -- Default to 0.00 if no grades
+    WHERE student_id = my_student_id;
+END;
+$$ LANGUAGE plpgsql;
+
 ------------------Admin Operations-----------------------------------------------------------------------------
 
 --Add course andd assign to instructor 
