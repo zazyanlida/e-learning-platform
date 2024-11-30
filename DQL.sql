@@ -2,7 +2,7 @@ DROP FUNCTION IF EXISTS update_syllabus();
 DROP FUNCTION IF EXISTS view_syllabus();
 DROP FUNCTION IF EXISTS view_student_course_grades();
 DROP FUNCTION IF EXISTS view_class_grades();
-DROP FUNCTION IF EXISTS Get_course_statistics();
+DROP FUNCTION IF EXISTS get_course_statistics();
 DROP FUNCTION IF EXISTS view_exams(); 
 DROP FUNCTION IF EXISTS update_exam_grades();
 DROP FUNCTION IF EXISTS leave_feedback();
