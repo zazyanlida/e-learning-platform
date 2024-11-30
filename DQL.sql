@@ -1,3 +1,30 @@
+DROP FUNCTION IF EXISTS update_syllabus();
+DROP FUNCTION IF EXISTS view_syllabus();
+DROP FUNCTION IF EXISTS view_student_course_grades();
+DROP FUNCTION IF EXISTS view_class_grades();
+DROP FUNCTION IF EXISTS Get_course_statistics();
+DROP FUNCTION IF EXISTS view_exams(); 
+DROP FUNCTION IF EXISTS update_exam_grades();
+DROP FUNCTION IF EXISTS leave_feedback();
+DROP FUNCTION IF EXISTS view_teaching_courses();
+DROP FUNCTION IF EXISTS create_discussion();
+DROP FUNCTION IF EXISTS add_comment();
+DROP FUNCTION IF EXISTS update_final_grades_by_course();
+DROP FUNCTION IF EXISTS leave_course_feedback();
+DROP FUNCTION IF EXISTS view_course_syllabus();
+DROP FUNCTION IF EXISTS view_exam_schedule();
+DROP FUNCTION IF EXISTS drop_course();
+DROP FUNCTION IF EXISTS get_enrolled_courses();
+DROP FUNCTION IF EXISTS get_student_course_grades();
+DROP FUNCTION IF EXISTS get_available_courses();
+DROP FUNCTION IF EXISTS get_courses_with_prerequisites_status();
+DROP FUNCTION IF EXISTS enroll_student();
+DROP FUNCTION IF EXISTS get_student_gpa();
+DROP FUNCTION IF EXISTS get_student_gpa();
+DROP FUNCTION IF EXISTS create_course_and_assign_professor();
+DROP FUNCTION IF EXISTS create_exam_and_check_conflict();
+DROP FUNCTION IF EXISTS unenroll_student_from_course();
+	
 --Update and View Syllabus
 
 CREATE OR REPLACE FUNCTION update_syllabus (
@@ -58,10 +85,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 --View a student’s course grades
 
-DROP FUNCTION  view_student_course_grades(p_student_id INT, p_course_id VARCHAR(255));
 CREATE OR REPLACE FUNCTION view_student_course_grades (
 	p_student_id INT,
 	p_course_id VARCHAR(255) DEFAULT NULL
@@ -90,7 +115,7 @@ $$ LANGUAGE plpgsql;
 
 
 --View all students exam grades for a class
-Drop function view_class_grades;
+
 CREATE OR REPLACE FUNCTION view_class_grades (
 	p_course_id VARCHAR(255),
 	p_semester VARCHAR(255), 
@@ -123,10 +148,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 --View course statistics 
 
-Drop function get_course_statistics;
 CREATE OR REPLACE FUNCTION get_course_statistics(
     p_course_id VARCHAR(255),
     p_section_id INT DEFAULT NULL,
@@ -151,7 +174,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP function view_exams
 --View exam ids and schedule of the course 
 CREATE OR REPLACE FUNCTION view_exams(
     p_course_id VARCHAR(255)
@@ -381,14 +403,6 @@ BEGIN
     RAISE NOTICE 'Feedback successfully submitted for student % in course %', p_student_id, p_course_id;
 END;
 $$ LANGUAGE plpgsql;
-	SELECT leave_course_feedback(1000001, 'CS101', 1, 'Fall', 2024, 'This course was great!');
-SELECT * FROM Exam_grades 
-WHERE student_id = 1000001
-AND exam_id IN (
-    SELECT exam_id 
-    FROM Exam 
-    WHERE course_id = 'CS101'
-);
 
 --Enrolled students see the syllabuses
 CREATE OR REPLACE FUNCTION view_course_syllabus(
@@ -429,8 +443,6 @@ BEGIN
     AND s.offered_year = p_offered_year;
 END;
 $$ LANGUAGE plpgsql;
--- Example usage to view syllabus for a student enrolled in a course
-SELECT * FROM view_course_syllabus(1000001, 'CS102', 1, 'Fall', 2024);
 
 --view exam schedule
 CREATE OR REPLACE FUNCTION view_exam_schedule(
@@ -471,7 +483,6 @@ BEGIN
     AND cs.offered_year = p_offered_year;
 END;
 $$ LANGUAGE plpgsql;
-SELECT * FROM view_exam_schedule(1000001, 'CS101', 1, 'Fall', 2024);
 
 -----Droping course
 drop function drop_course
@@ -510,164 +521,6 @@ BEGIN
         p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
 END;
 $$ LANGUAGE plpgsql;
--- Example usage: Drop a course for a student
-SELECT drop_course(1000001, 'CS102', 2, 'Fall', 2024);
-select * from Enrolls
-
-
-------------------Admin Operations-----------------------------------------------------------------------------
---Add course andd assign to instructor 
-CREATE OR REPLACE FUNCTION create_course_and_assign_professor(
-    p_course_id VARCHAR(255),
-    p_course_name VARCHAR(255),
-    p_category VARCHAR(255),
-    p_description TEXT,
-    p_instructor_id INT,
-    p_section_id INT,
-    p_semester VARCHAR(255),
-    p_offered_year INT,
-    p_start_date DATE,
-    p_end_date DATE,
-    p_weekday VARCHAR(255),
-    p_time TIME
-)
-RETURNS VOID AS $$
-BEGIN
-    -- Insert a new course record into the Courses table
-    INSERT INTO Courses (course_id, course_name, category, description)
-    VALUES (p_course_id, p_course_name, p_category, p_description);
-    
-    RAISE NOTICE 'Course % has been created successfully.', p_course_id;
-
-    -- Insert a new course section and assign the professor in the Course_section table
-    INSERT INTO Course_section (
-        course_id, 
-        section_id, 
-        semester, 
-        offered_year, 
-        start_date, 
-        end_date, 
-        weekday, 
-        time, 
-        instructor_id
-    )
-    VALUES (
-        p_course_id, 
-        p_section_id, 
-        p_semester, 
-        p_offered_year, 
-        p_start_date, 
-        p_end_date, 
-        p_weekday, 
-        p_time, 
-        p_instructor_id
-    );
-    
-    RAISE NOTICE 'Professor % has been assigned to course % for section % in semester % of year %', 
-        p_instructor_id, p_course_id, p_section_id, p_semester, p_offered_year;
-END;
-$$ LANGUAGE plpgsql;
--- Example usage: Admin creates a course and assigns a professor to it
-SELECT create_course_and_assign_professor(
-    'CS106', 
-    'Introduction to Programming', 
-    'Computer Science', 
-    'This course covers the basics of programming.', 
-    1000028,   -- Professor ID
-    2,   -- Section ID
-    'Fall', 
-    2025, 
-    '2025-05-15',  
-    '2025-09-15',  
-    'Monday', 
-    '11:00:00'
-);
-select * from Course_section
-
-
-------------- Creating exams
-drop function create_exam_and_check_conflict
-CREATE OR REPLACE FUNCTION create_exam_and_check_conflict(
-    p_exam_id INT,
-    p_course_id VARCHAR(255),
-    p_exam_type exam_type,   -- 'midterm' or 'final'
-    p_exam_date DATE,
-    p_exam_time TIME
-)
-RETURNS VOID AS $$
-BEGIN
-    -- Check for scheduling conflicts with other exams at the same date and time
-    IF EXISTS (
-        SELECT 1 
-        FROM Exam 
-        WHERE date = p_exam_date 
-        AND ABS(EXTRACT(EPOCH FROM (time - p_exam_time)) / 60) < 50
-    ) THEN
-        -- Raise an error if there is a scheduling conflict
-        RAISE EXCEPTION 'Conflict: An exam is already scheduled at % on % for another course', 
-            p_exam_time::TEXT, p_exam_date::TEXT;
-    ELSE
-        -- Insert the new exam record into the Exam table
-        INSERT INTO Exam (exam_id, course_id, type, date, time)
-        VALUES (p_exam_id, p_course_id, p_exam_type, p_exam_date, p_exam_time);
-        
-        -- Raise a success message
-        RAISE NOTICE 'Exam for course % has been scheduled successfully for % on % at %',
-            p_course_id, p_exam_type, p_exam_date, p_exam_time;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
--- Attempting to schedule a new exam at the same time will raise a conflict
-SELECT create_exam_and_check_conflict(
-    105,                  -- New Exam ID
-    'CS101',              -- Another Course ID
-    'final',              -- Exam Type
-    '2025-03-15',         -- Exam Date
-    '09:55:00'            -- Same Exam Time
-);
-select * from Exam
------------------------------------------------
---deletes from enrolled course
-drop function unenroll_student_from_course
-CREATE OR REPLACE FUNCTION unenroll_student_from_course(
-    p_student_id INT,
-    p_course_id VARCHAR(255),
-    p_section_id INT,
-    p_semester VARCHAR(255),
-    p_offered_year INT
-)
-RETURNS VOID AS $$
-BEGIN
-    -- Check if the student is enrolled in the course
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Enrolls
-        WHERE student_id = p_student_id
-        AND course_id = p_course_id
-        AND section_id = p_section_id
-        AND semester = p_semester
-        AND offered_year = p_offered_year
-    ) THEN
-        -- Raise an error if the student is not enrolled in the course
-        RAISE EXCEPTION 'Student % is not enrolled in course % for section % in % of year %',
-            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
-    ELSE
-        -- Delete the student's enrollment record
-        DELETE FROM Enrolls
-        WHERE student_id = p_student_id
-        AND course_id = p_course_id
-        AND section_id = p_section_id
-        AND semester = p_semester
-        AND offered_year = p_offered_year;
-
-        -- Raise a success message indicating the student has been unenrolled
-        RAISE NOTICE 'Student % has been unenrolled from course % for section % in % of year %',
-            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-
 
 CREATE OR REPLACE FUNCTION get_enrolled_courses(my_student_id INT)
 RETURNS TABLE (
@@ -704,7 +557,6 @@ BEGIN
         e.student_id = my_student_id;
 END;
 $$ LANGUAGE plpgsql;
-SELECT * FROM get_enrolled_courses(1000002)
 
 
 CREATE OR REPLACE FUNCTION get_student_course_grades(my_student_id INT)
@@ -934,5 +786,126 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+------------------Admin Operations-----------------------------------------------------------------------------
 
+--Add course andd assign to instructor 
+CREATE OR REPLACE FUNCTION create_course_and_assign_professor(
+    p_course_id VARCHAR(255),
+    p_course_name VARCHAR(255),
+    p_category VARCHAR(255),
+    p_description TEXT,
+    p_instructor_id INT,
+    p_section_id INT,
+    p_semester VARCHAR(255),
+    p_offered_year INT,
+    p_start_date DATE,
+    p_end_date DATE,
+    p_weekday VARCHAR(255),
+    p_time TIME
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Insert a new course record into the Courses table
+    INSERT INTO Courses (course_id, course_name, category, description)
+    VALUES (p_course_id, p_course_name, p_category, p_description);
+    
+    RAISE NOTICE 'Course % has been created successfully.', p_course_id;
 
+    -- Insert a new course section and assign the professor in the Course_section table
+    INSERT INTO Course_section (
+        course_id, 
+        section_id, 
+        semester, 
+        offered_year, 
+        start_date, 
+        end_date, 
+        weekday, 
+        time, 
+        instructor_id
+    )
+    VALUES (
+        p_course_id, 
+        p_section_id, 
+        p_semester, 
+        p_offered_year, 
+        p_start_date, 
+        p_end_date, 
+        p_weekday, 
+        p_time, 
+        p_instructor_id
+    );
+    
+    RAISE NOTICE 'Professor % has been assigned to course % for section % in semester % of year %', 
+        p_instructor_id, p_course_id, p_section_id, p_semester, p_offered_year;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Creating exams
+CREATE OR REPLACE FUNCTION create_exam_and_check_conflict(
+    p_exam_id INT,
+    p_course_id VARCHAR(255),
+    p_exam_type exam_type,   -- 'midterm' or 'final'
+    p_exam_date DATE,
+    p_exam_time TIME
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Check for scheduling conflicts with other exams at the same date and time
+    IF EXISTS (
+        SELECT 1 
+        FROM Exam 
+        WHERE date = p_exam_date 
+        AND ABS(EXTRACT(EPOCH FROM (time - p_exam_time)) / 60) < 50
+    ) THEN
+        -- Raise an error if there is a scheduling conflict
+        RAISE EXCEPTION 'Conflict: An exam is already scheduled at % on % for another course', 
+            p_exam_time::TEXT, p_exam_date::TEXT;
+    ELSE
+        -- Insert the new exam record into the Exam table
+        INSERT INTO Exam (exam_id, course_id, type, date, time)
+        VALUES (p_exam_id, p_course_id, p_exam_type, p_exam_date, p_exam_time);
+        
+        -- Raise a success message
+        RAISE NOTICE 'Exam for course % has been scheduled successfully for % on % at %',
+            p_course_id, p_exam_type, p_exam_date, p_exam_time;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION unenroll_student_from_course(
+    p_student_id INT,
+    p_course_id VARCHAR(255),
+    p_section_id INT,
+    p_semester VARCHAR(255),
+    p_offered_year INT
+)
+RETURNS VOID AS $$
+BEGIN
+    -- Check if the student is enrolled in the course
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Enrolls
+        WHERE student_id = p_student_id
+        AND course_id = p_course_id
+        AND section_id = p_section_id
+        AND semester = p_semester
+        AND offered_year = p_offered_year
+    ) THEN
+        -- Raise an error if the student is not enrolled in the course
+        RAISE EXCEPTION 'Student % is not enrolled in course % for section % in % of year %',
+            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
+    ELSE
+        -- Delete the student's enrollment record
+        DELETE FROM Enrolls
+        WHERE student_id = p_student_id
+        AND course_id = p_course_id
+        AND section_id = p_section_id
+        AND semester = p_semester
+        AND offered_year = p_offered_year;
+
+        -- Raise a success message indicating the student has been unenrolled
+        RAISE NOTICE 'Student % has been unenrolled from course % for section % in % of year %',
+            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
