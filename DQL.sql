@@ -20,10 +20,8 @@ DROP FUNCTION IF EXISTS get_available_courses();
 DROP FUNCTION IF EXISTS get_courses_with_prerequisites_status();
 DROP FUNCTION IF EXISTS enroll_student();
 DROP FUNCTION IF EXISTS get_student_gpa();
-DROP FUNCTION IF EXISTS get_student_gpa();
 DROP FUNCTION IF EXISTS create_course_and_assign_professor();
 DROP FUNCTION IF EXISTS create_exam_and_check_conflict();
-DROP FUNCTION IF EXISTS unenroll_student_from_course();
 	
 --Update and View Syllabus
 
@@ -865,44 +863,6 @@ BEGIN
         -- Raise a success message
         RAISE NOTICE 'Exam for course % has been scheduled successfully for % on % at %',
             p_course_id, p_exam_type, p_exam_date, p_exam_time;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION unenroll_student_from_course(
-    p_student_id INT,
-    p_course_id VARCHAR(255),
-    p_section_id INT,
-    p_semester VARCHAR(255),
-    p_offered_year INT
-)
-RETURNS VOID AS $$
-BEGIN
-    -- Check if the student is enrolled in the course
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Enrolls
-        WHERE student_id = p_student_id
-        AND course_id = p_course_id
-        AND section_id = p_section_id
-        AND semester = p_semester
-        AND offered_year = p_offered_year
-    ) THEN
-        -- Raise an error if the student is not enrolled in the course
-        RAISE EXCEPTION 'Student % is not enrolled in course % for section % in % of year %',
-            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
-    ELSE
-        -- Delete the student's enrollment record
-        DELETE FROM Enrolls
-        WHERE student_id = p_student_id
-        AND course_id = p_course_id
-        AND section_id = p_section_id
-        AND semester = p_semester
-        AND offered_year = p_offered_year;
-
-        -- Raise a success message indicating the student has been unenrolled
-        RAISE NOTICE 'Student % has been unenrolled from course % for section % in % of year %',
-            p_student_id, p_course_id, p_section_id, p_semester, p_offered_year;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
